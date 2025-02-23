@@ -12,9 +12,17 @@ return new class extends Migration {
     {
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
+            // $table->unsignedBigInteger('book_id');
             $table->text('review');
             $table->unsignedTinyInteger('rating');
             $table->timestamps();
+            /*
+            adding foreign key, cascade means that if book is deleted so review is deleted too
+            $table->foreign('book_id')->references('id')->on('books')->onDelete('cascade');
+            */
+
+            // shorter syntax. book_id is a default convention in laravel
+            $table->foreignId('book_id')->constrained()->cascadeOnDelete();
         });
     }
 
