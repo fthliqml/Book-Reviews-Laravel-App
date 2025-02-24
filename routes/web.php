@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -8,7 +9,8 @@ Route::get('/', function () {
 });
 
 // automatically register route for CRUD and connect to controller method
-Route::resource('books', BookController::class);
+Route::resource('books', BookController::class)
+    ->only(['index', 'show']);
 
 /*
  Route::get('books', [BookController::class, 'index'])->name('books.index');
@@ -18,3 +20,7 @@ Route::resource('books', BookController::class);
  Route::put('books/{product}', [BookController::class, 'update'])->name('books.update');
  Route::delete('books/{product}', [BookController::class, 'destroy'])->name('books.destroy');
  */
+
+Route::resource('books.reviews', ReviewController::class)
+    ->scoped(['review' => 'book'])
+    ->only(['create', 'store']);
