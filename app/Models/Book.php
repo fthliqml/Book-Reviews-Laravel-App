@@ -24,21 +24,31 @@ class Book extends Model
         return $query->where('title', 'LIKE', "%{$title}%");
     }
 
+    public function scopeWithReviewsCount(Builder $query, $from = null, $to = null): Builder
+    {
+        return $query->withCount([
+            'reviews' => fn(Builder $q) => $this->dateRangeFilter($q, $from, $to)
+        ]);
+    }
+
+    public function scopeWithAvgRating(Builder $query, $from = null, $to = null): Builder
+    {
+        return $query->withAvg([
+            'reviews' => fn(Builder $q) => $this->dateRangeFilter($q, $from, $to)
+        ], 'rating');
+    }
+
     public function scopePopular(Builder $query, $from = null, $to = null): Builder
     {
         return $query
-            ->withCount([
-                'reviews' => fn(Builder $q) => $this->dateRangeFilter($q, $from, $to)
-            ])
+            ->withReviewsCount()
             ->orderBy('reviews_count', 'desc');
     }
 
     public function scopeHighestRated(Builder $query, $from = null, $to = null): Builder
     {
         return $query
-            ->withAvg([
-                'reviews' => fn(Builder $q) => $this->dateRangeFilter($q, $from, $to)
-            ], 'rating')
+            ->withAvgRating()
             ->orderBy('reviews_avg_rating', 'desc');
     }
 
@@ -58,7 +68,6 @@ class Book extends Model
             $query->whereBetween('created_at', [$from, $to]);
         }
     }
-
     public function scopePopularLastMonth(Builder $query): Builder
     {
         // now(): date now, subMonth($value = 1): decrease month
